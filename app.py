@@ -55,14 +55,6 @@ def get_esg_data_for_file(uploaded_file):
 st.title("ESG Analytics Dashboard")
 st.subheader("Strategic ESG Analysis & Sustainability Metrics")
 
-menu = option_menu("Main Menu", 
-                  ["Welcome", "View ESG Score", "Compare ESG Scores", "Bulk ESG Analysis"],
-                  icons=['house', 'eye', 'bar-chart', 'upload'], 
-                  menu_icon="cast", 
-                  default_index=0)
-st.title("ESG Analytics Dashboard 📊")
-st.subheader("Strategic ESG Analysis & Sustainability Metrics 🎯")
-
 # Main navigation
 menu = option_menu("Main Menu", 
                   ["Welcome", "View ESG Score", "Compare ESG Scores", "Bulk ESG Analysis"],
@@ -276,7 +268,7 @@ elif menu == "Compare ESG Scores":
             fig = px.bar(comparison_df, x="Category", y=[ticker1, ticker2], barmode='group', title=f"ESG Comparison: {ticker1} vs {ticker2}")
             st.plotly_chart(fig)
 
-elif menu == "Upload File for ESG Data":
+elif menu == "Bulk ESG Analysis":
     uploaded_file = st.file_uploader("Upload a CSV file with ticker codes", type=["csv"])
     if uploaded_file is not None:
         if st.button("Get ESG Data"):
