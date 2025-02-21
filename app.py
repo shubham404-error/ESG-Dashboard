@@ -4,17 +4,21 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
-import os
 
 def get_esg_data(ticker):
     try:
         stock = yf.Ticker(ticker)
-        esg_data = stock.sustainability.transpose()
-        esg_data.insert(0, 'company_ticker', ticker)  # Move ticker to the first column
-        if 'maxAge' in esg_data.columns:
-            max_age = esg_data.pop('maxAge')
-            esg_data['maxAge'] = max_age  # Move maxAge to the last column
-        return esg_data
+        esg_data = stock.sustainability
+        if esg_data is not None:
+            esg_data = esg_data.transpose()
+            esg_data.insert(0, 'company_ticker', ticker)  # Move ticker to the first column
+            if 'maxAge' in esg_data.columns:
+                max_age = esg_data.pop('maxAge')
+                esg_data['maxAge'] = max_age  # Move maxAge to the last column
+            return esg_data
+        else:
+            st.warning(f"No ESG data found for {ticker}.")
+            return None
     except Exception as e:
         st.error(f"Error retrieving data for {ticker}: {e}")
         return None
@@ -57,10 +61,10 @@ if menu == "View ESG Score":
         esg_data = get_esg_data(ticker)
         if esg_data is not None:
             st.subheader(f"ESG Breakdown for {ticker}")
-            total_esg = esg_data.loc['totalEsg'][0]
-            env_score = esg_data.loc['environmentScore'][0]
-            soc_score = esg_data.loc['socialScore'][0]
-            gov_score = esg_data.loc['governanceScore'][0]
+            total_esg = esg_data.xs('totalEsg', level=1).iloc[0]
+            env_score = esg_data.xs('environmentScore', level=1).iloc[0]
+            soc_score = esg_data.xs('socialScore', level=1).iloc[0]
+            gov_score = esg_data.xs('governanceScore', level=1).iloc[0]
             
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Total ESG Risk Score", total_esg, "Medium")
@@ -88,8 +92,8 @@ elif menu == "Compare ESG Scores":
         if esg_data1 is not None and esg_data2 is not None:
             comparison_df = pd.DataFrame({
                 "Category": ['Environment', 'Social', 'Governance'],
-                ticker1: [esg_data1.loc['environmentScore'][0], esg_data1.loc['socialScore'][0], esg_data1.loc['governanceScore'][0]],
-                ticker2: [esg_data2.loc['environmentScore'][0], esg_data2.loc['socialScore'][0], esg_data2.loc['governanceScore'][0]]
+                ticker1: [esg_data1.xs('environmentScore', level=1).iloc[0], esg_data1.xs('socialScore', level=1).iloc[0], esg_data1.xs('governanceScore', level=1).iloc[0]],
+                ticker2: [esg_data2.xs('environmentScore', level=1).iloc[0], esg_data2.xs('socialScore', level=1).iloc[0], esg_data2.xs('governanceScore', level=1).iloc[0]]
             })
             st.write(comparison_df)
 
