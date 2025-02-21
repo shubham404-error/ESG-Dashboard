@@ -87,8 +87,8 @@ elif menu == "Compare ESG Scores":
         if esg_data1 is not None and esg_data2 is not None:
             comparison_df = pd.DataFrame({
                 "Category": ['Environment', 'Social', 'Governance'],
-                ticker1: [esg_data1.loc['environmentScore'][0], esg_data1.loc['socialScore'][0], esg_data1.loc['governanceScore'][0]],
-                ticker2: [esg_data2.loc['environmentScore'][0], esg_data2.loc['socialScore'][0], esg_data2.loc['governanceScore'][0]]
+                ticker1: [esg_data1['environmentScore'].values[0], esg_data1['socialScore'].values[0], esg_data1['governanceScore'].values[0]],
+                ticker2: [esg_data2['environmentScore'].values[0], esg_data2['socialScore'].values[0], esg_data2['governanceScore'].values[0]]
             })
             st.write(comparison_df)
 
