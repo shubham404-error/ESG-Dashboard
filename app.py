@@ -54,7 +54,6 @@ st.title("ESG Dashboard")
 
 menu = option_menu("Main Menu", ["View ESG Score", "Compare ESG Scores", "Upload File for ESG Data"],
                    icons=['eye', 'bar-chart', 'upload'], menu_icon="cast", default_index=0)
-
 if menu == "View ESG Score":
     ticker = st.text_input("Enter a stock ticker (e.g., KO for Coca-Cola)")
     if st.button("Get ESG Score"):
@@ -62,12 +61,43 @@ if menu == "View ESG Score":
         if esg_data is not None:
             st.subheader(f"ESG Breakdown for {ticker}")
             
-            # Get scores directly from columns
+            # Extract ESG Scores
             total_esg = esg_data['totalEsg'].iloc[0]
             env_score = esg_data['environmentScore'].iloc[0]
             soc_score = esg_data['socialScore'].iloc[0]
             gov_score = esg_data['governanceScore'].iloc[0]
-            # Radar Chart
+            controversy_level = esg_data['controversyLevel'].iloc[0]
+
+            # Assign qualitative labels
+            def classify_esg(score):
+                if score < 20:
+                    return "Low Risk"
+                elif score < 40:
+                    return "Medium Risk"
+                else:
+                    return "High Risk"
+            
+            def classify_controversy(level):
+                labels = ["None", "Low", "Moderate", "High", "Severe"]
+                return labels[min(level, 4)]  # Ensure index is within range
+
+            esg_label = classify_esg(total_esg)
+            controversy_label = classify_controversy(int(controversy_level))
+
+            # Display Overall ESG Risk Score
+            st.markdown(f"### **Overall ESG Risk Score:** {total_esg} ({esg_label})")
+
+            # Display Individual ESG Scores
+            col1, col2, col3 = st.columns(3)
+            col1.metric("🌱 Environmental", env_score)
+            col2.metric("🤝 Social", soc_score)
+            col3.metric("🏛 Governance", gov_score)
+
+            # Display Controversy Level
+            st.markdown(f"### **Controversy Level:** {controversy_level} ({controversy_label})")
+            st.progress(controversy_level / 5)  # Scale 0 to 5
+
+            # Radar Chart Visualization
             categories = ['Environment', 'Social', 'Governance']
             values = [env_score, soc_score, gov_score]
             fig = go.Figure()
@@ -77,6 +107,10 @@ if menu == "View ESG Score":
             fig.update_layout(polar=dict(radialaxis=dict(visible=True)),
                               showlegend=True)
             st.plotly_chart(fig)
+
+
+
+    
 
 elif menu == "Compare ESG Scores":
     ticker1 = st.text_input("Enter first stock ticker")
