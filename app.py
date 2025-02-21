@@ -61,17 +61,12 @@ if menu == "View ESG Score":
         esg_data = get_esg_data(ticker)
         if esg_data is not None:
             st.subheader(f"ESG Breakdown for {ticker}")
-            total_esg = esg_data.xs('totalEsg', level=1).iloc[0]
-            env_score = esg_data.xs('environmentScore', level=1).iloc[0]
-            soc_score = esg_data.xs('socialScore', level=1).iloc[0]
-            gov_score = esg_data.xs('governanceScore', level=1).iloc[0]
             
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Total ESG Risk Score", total_esg, "Medium")
-            col2.metric("Environmental Risk Score", env_score)
-            col3.metric("Social Risk Score", soc_score)
-            col4.metric("Governance Risk Score", gov_score)
-
+            # Get scores directly from columns
+            total_esg = esg_data['totalEsg'].iloc[0]
+            env_score = esg_data['environmentScore'].iloc[0]
+            soc_score = esg_data['socialScore'].iloc[0]
+            gov_score = esg_data['governanceScore'].iloc[0]
             # Radar Chart
             categories = ['Environment', 'Social', 'Governance']
             values = [env_score, soc_score, gov_score]
