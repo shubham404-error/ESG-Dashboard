@@ -9,6 +9,9 @@ def get_esg_data(ticker):
         stock = yf.Ticker(ticker)
         esg_data = stock.sustainability.transpose()
         esg_data.insert(0, 'company_ticker', ticker)  # Move ticker to the first column
+        if 'maxAge' in esg_data.columns:
+            max_age = esg_data.pop('maxAge')
+            esg_data['maxAge'] = max_age  # Move maxAge to the last column
         return esg_data
     except Exception as e:
         st.error(f"Error retrieving data for {ticker}: {e}")
@@ -19,14 +22,21 @@ def get_esg_data_for_file(uploaded_file):
         try:
             tickers_df = pd.read_csv(uploaded_file)
             tickers = tickers_df['ticker_code'].head(100)
-            esg_data = pd.DataFrame()
+            esg_data_list = []
             for ticker in tickers:
                 stock = yf.Ticker(ticker)
                 if stock.sustainability is not None:
                     temp = stock.sustainability.transpose()
                     temp.insert(0, 'company_ticker', ticker)
-                    esg_data = esg_data.append(temp)
-            return esg_data
+                    if 'maxAge' in temp.columns:
+                        max_age = temp.pop('maxAge')
+                        temp['maxAge'] = max_age  # Move maxAge to the last column
+                    esg_data_list.append(temp)
+            if esg_data_list:
+                return pd.concat(esg_data_list, ignore_index=True)
+            else:
+                st.warning("No ESG data found for the provided tickers.")
+                return None
         except Exception as e:
             st.error(f"Error processing file: {e}")
             return None
