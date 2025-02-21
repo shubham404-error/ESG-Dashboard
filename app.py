@@ -1,6 +1,8 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
 import os
 
@@ -54,7 +56,28 @@ if menu == "View ESG Score":
     if st.button("Get ESG Score"):
         esg_data = get_esg_data(ticker)
         if esg_data is not None:
-            st.write(esg_data)
+            st.subheader(f"ESG Breakdown for {ticker}")
+            total_esg = esg_data.loc['totalEsg'][0]
+            env_score = esg_data.loc['environmentScore'][0]
+            soc_score = esg_data.loc['socialScore'][0]
+            gov_score = esg_data.loc['governanceScore'][0]
+            
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Total ESG Risk Score", total_esg, "Medium")
+            col2.metric("Environmental Risk Score", env_score)
+            col3.metric("Social Risk Score", soc_score)
+            col4.metric("Governance Risk Score", gov_score)
+
+            # Radar Chart
+            categories = ['Environment', 'Social', 'Governance']
+            values = [env_score, soc_score, gov_score]
+            fig = go.Figure()
+            fig.add_trace(go.Scatterpolar(r=values + [values[0]],
+                                          theta=categories + [categories[0]],
+                                          fill='toself', name=ticker))
+            fig.update_layout(polar=dict(radialaxis=dict(visible=True)),
+                              showlegend=True)
+            st.plotly_chart(fig)
 
 elif menu == "Compare ESG Scores":
     ticker1 = st.text_input("Enter first stock ticker")
@@ -63,8 +86,16 @@ elif menu == "Compare ESG Scores":
         esg_data1 = get_esg_data(ticker1)
         esg_data2 = get_esg_data(ticker2)
         if esg_data1 is not None and esg_data2 is not None:
-            comparison = pd.concat([esg_data1, esg_data2])
-            st.write(comparison)
+            comparison_df = pd.DataFrame({
+                "Category": ['Environment', 'Social', 'Governance'],
+                ticker1: [esg_data1.loc['environmentScore'][0], esg_data1.loc['socialScore'][0], esg_data1.loc['governanceScore'][0]],
+                ticker2: [esg_data2.loc['environmentScore'][0], esg_data2.loc['socialScore'][0], esg_data2.loc['governanceScore'][0]]
+            })
+            st.write(comparison_df)
+
+            # Visualization
+            fig = px.bar(comparison_df, x="Category", y=[ticker1, ticker2], barmode='group', title=f"ESG Comparison: {ticker1} vs {ticker2}")
+            st.plotly_chart(fig)
 
 elif menu == "Upload File for ESG Data":
     uploaded_file = st.file_uploader("Upload a CSV file with ticker codes", type=["csv"])
