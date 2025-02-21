@@ -111,59 +111,23 @@ if menu == "View ESG Score":
     
 
 elif menu == "Compare ESG Scores":
-    ticker1 = st.text_input("Enter first stock ticker (e.g., AAPL)")
-    ticker2 = st.text_input("Enter second stock ticker (e.g., MSFT)")
-
-    compare_peers = st.checkbox("Compare with Peers")  # Optional peer comparison
-
+    ticker1 = st.text_input("Enter first stock ticker")
+    ticker2 = st.text_input("Enter second stock ticker")
     if st.button("Compare"):
         esg_data1 = get_esg_data(ticker1)
         esg_data2 = get_esg_data(ticker2)
-
         if esg_data1 is not None and esg_data2 is not None:
-            # Create DataFrame for manual ticker comparison
             comparison_df = pd.DataFrame({
                 "Category": ['Environment', 'Social', 'Governance'],
                 ticker1: [esg_data1['environmentScore'].values[0], esg_data1['socialScore'].values[0], esg_data1['governanceScore'].values[0]],
                 ticker2: [esg_data2['environmentScore'].values[0], esg_data2['socialScore'].values[0], esg_data2['governanceScore'].values[0]]
+
             })
             st.write(comparison_df)
 
-            # Visualization: Bar Chart for Manual Comparison
-            fig = px.bar(comparison_df, x="Category", y=[ticker1, ticker2], 
-                         barmode='group', title=f"ESG Comparison: {ticker1} vs {ticker2}")
+            # Visualization
+            fig = px.bar(comparison_df, x="Category", y=[ticker1, ticker2], barmode='group', title=f"ESG Comparison: {ticker1} vs {ticker2}")
             st.plotly_chart(fig)
-
-        # Peer Comparison Logic (Optional)
-        if compare_peers and esg_data1 is not None:
-            stock = yf.Ticker(ticker1)
-            peer_tickers = stock.info.get("industryKey", [])  # Placeholder for industry-based peers
-            
-            if not peer_tickers:  # If no direct peers, use common industry stocks
-                peer_tickers = ["MSFT", "GOOGL", "NVDA", "META"] if ticker1 == "AAPL" else ["XOM", "CVX", "BP", "SHEL"]
-
-            esg_scores = {ticker1: esg_data1['totalEsg'].iloc[0]}
-
-            for peer in peer_tickers[:4]:  # Limit to 4 peers
-                esg_data_peer = get_esg_data(peer)
-                if esg_data_peer is not None:
-                    esg_scores[peer] = esg_data_peer['totalEsg'].iloc[0]
-
-            # Peer Comparison DataFrame
-            peer_df = pd.DataFrame(esg_scores.items(), columns=["Company", "ESG Score"])
-            
-            if not peer_df.empty:
-                st.subheader(f"ESG Score Comparison: {ticker1} vs Industry Peers")
-                st.write(peer_df)
-
-                # Peer Comparison Bar Chart
-                peer_fig = px.bar(peer_df, x="Company", y="ESG Score", 
-                                  title=f"ESG Score Comparison: {ticker1} vs Peers",
-                                  color="Company", height=500)
-                st.plotly_chart(peer_fig)
-            else:
-                st.warning("No ESG data available for selected peers.")
-
 
 elif menu == "Upload File for ESG Data":
     uploaded_file = st.file_uploader("Upload a CSV file with ticker codes", type=["csv"])
