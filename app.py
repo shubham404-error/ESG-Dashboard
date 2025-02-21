@@ -4,7 +4,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
-
+# Page config
+st.set_page_config(page_title="ESG Analytics Dashboard", page_icon="🌱", layout="wide")
+st.image("logo.png", width=100)
 
 
 def get_esg_data(ticker):
@@ -80,9 +82,7 @@ if menu == "Welcome":
         - ⚖️ Governance standards
         - ⚠️ Controversy tracking
         """)
-        if st.button("Analyze Company"):
-            st.session_state.menu = "View ESG Score"
-            st.rerun()
+        
             
     with col2:
         st.markdown("### Peer Comparison 🔄")
@@ -94,9 +94,7 @@ if menu == "Welcome":
         - 🎯 Industry benchmarking
         - ⚡ Risk level assessment
         """)
-        if st.button("Compare Companies"):
-            st.session_state.menu = "Compare ESG Scores"
-            st.rerun()
+        
             
     with col3:
         st.markdown("### Portfolio Analysis 📝")
@@ -108,9 +106,7 @@ if menu == "Welcome":
         - ⚡ Batch processing
         - 💾 Data export options
         """)
-        if st.button("Analyze Portfolio"):
-            st.session_state.menu = "Bulk ESG Analysis"
-            st.rerun()
+        
 
     # Analysis Features
     st.markdown("### Analysis Tools 🛠️")
