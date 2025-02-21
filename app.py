@@ -66,7 +66,7 @@ if menu == "View ESG Score":
             env_score = esg_data['environmentScore'].iloc[0]
             soc_score = esg_data['socialScore'].iloc[0]
             gov_score = esg_data['governanceScore'].iloc[0]
-            controversy_level = esg_data['controversyLevel'].iloc[0]
+            controversy_level = esg_data['highestControversy'].iloc[0]  # Fixed column name
 
             # Assign qualitative labels
             def classify_esg(score):
@@ -79,10 +79,10 @@ if menu == "View ESG Score":
             
             def classify_controversy(level):
                 labels = ["None", "Low", "Moderate", "High", "Severe"]
-                return labels[min(level, 4)]  # Ensure index is within range
+                return labels[min(int(level), 4)]  # Ensure index is within range
 
             esg_label = classify_esg(total_esg)
-            controversy_label = classify_controversy(int(controversy_level))
+            controversy_label = classify_controversy(controversy_level)
 
             # Display Overall ESG Risk Score
             st.markdown(f"### **Overall ESG Risk Score:** {total_esg} ({esg_label})")
@@ -95,7 +95,7 @@ if menu == "View ESG Score":
 
             # Display Controversy Level
             st.markdown(f"### **Controversy Level:** {controversy_level} ({controversy_label})")
-            st.progress(controversy_level / 5)  # Scale 0 to 5
+            st.progress(int(controversy_level) / 5)  # Scale 0 to 5
 
             # Radar Chart Visualization
             categories = ['Environment', 'Social', 'Governance']
@@ -107,8 +107,6 @@ if menu == "View ESG Score":
             fig.update_layout(polar=dict(radialaxis=dict(visible=True)),
                               showlegend=True)
             st.plotly_chart(fig)
-
-
 
     
 
