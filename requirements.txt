@@ -3,3 +3,4 @@ pandas
 numpy
 streamlit
 plotly
+streamlit_option_menu
