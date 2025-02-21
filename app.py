@@ -5,6 +5,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
 
+
+
 def get_esg_data(ticker):
     try:
         stock = yf.Ticker(ticker)
@@ -50,10 +52,155 @@ def get_esg_data_for_file(uploaded_file):
         st.warning("Please upload a valid file.")
         return None
 
-st.title("ESG Dashboard")
+st.title("ESG Analytics Dashboard")
+st.subheader("Strategic ESG Analysis & Sustainability Metrics")
 
-menu = option_menu("Main Menu", ["View ESG Score", "Compare ESG Scores", "Upload File for ESG Data"],
-                   icons=['eye', 'bar-chart', 'upload'], menu_icon="cast", default_index=0)
+menu = option_menu("Main Menu", 
+                  ["Welcome", "View ESG Score", "Compare ESG Scores", "Bulk ESG Analysis"],
+                  icons=['house', 'eye', 'bar-chart', 'upload'], 
+                  menu_icon="cast", 
+                  default_index=0)
+st.title("ESG Analytics Dashboard 📊")
+st.subheader("Strategic ESG Analysis & Sustainability Metrics 🎯")
+
+# Main navigation
+menu = option_menu("Main Menu", 
+                  ["Welcome", "View ESG Score", "Compare ESG Scores", "Bulk ESG Analysis"],
+                  icons=['house', 'eye', 'bar-chart', 'upload'], 
+                  menu_icon="cast", 
+                  default_index=0)
+
+if menu == "Welcome":
+    st.markdown("""
+    Access comprehensive ESG metrics and sustainability analytics for informed investment decisions 📈
+    """)
+    
+    # Main Features in Three Columns
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("### Single Company Analysis 🔍")
+        st.markdown("""
+        Detailed ESG breakdown:
+        - 📊 Total ESG risk score
+        - 🌱 Environmental metrics
+        - 👥 Social responsibility
+        - ⚖️ Governance standards
+        - ⚠️ Controversy tracking
+        """)
+        if st.button("Analyze Company"):
+            st.session_state.menu = "View ESG Score"
+            st.rerun()
+            
+    with col2:
+        st.markdown("### Peer Comparison 🔄")
+        st.markdown("""
+        Compare sustainability metrics:
+        - 📈 Side-by-side ESG analysis
+        - 📊 Component breakdown
+        - 📉 Visual comparisons
+        - 🎯 Industry benchmarking
+        - ⚡ Risk level assessment
+        """)
+        if st.button("Compare Companies"):
+            st.session_state.menu = "Compare ESG Scores"
+            st.rerun()
+            
+    with col3:
+        st.markdown("### Portfolio Analysis 📝")
+        st.markdown("""
+        Bulk ESG assessment:
+        - 📂 Multiple company analysis
+        - 🔍 Portfolio screening
+        - 📊 ESG risk overview
+        - ⚡ Batch processing
+        - 💾 Data export options
+        """)
+        if st.button("Analyze Portfolio"):
+            st.session_state.menu = "Bulk ESG Analysis"
+            st.rerun()
+
+    # Analysis Features
+    st.markdown("### Analysis Tools 🛠️")
+    
+    tab1, tab2, tab3 = st.tabs(["Risk Assessment 📊", "Sustainability Metrics 🌱", "Reporting Tools 📑"])
+    
+    with tab1:
+        st.markdown("""
+        **ESG Risk Analysis**
+        - 📊 Comprehensive risk scoring
+        - ⚠️ Controversy level assessment
+        - 📈 Industry comparison
+        - 📅 Historical tracking
+        - 🎯 Risk categorization
+        """)
+        
+    with tab2:
+        st.markdown("""
+        **Sustainability Performance**
+        - 🌍 Environmental impact metrics
+        - 👥 Social responsibility indicators
+        - ⚖️ Governance standards
+        - 🔍 Controversy monitoring
+        - 📈 Trend analysis
+        """)
+        
+    with tab3:
+        st.markdown("""
+        **Reporting & Visualization**
+        - 📊 Interactive charts
+        - 🔄 Comparative analysis
+        - 📉 Risk breakdowns
+        - 💾 Data export
+        - 📑 Custom reporting
+        """)
+
+    # Quick Start Guide
+    st.markdown("### Getting Started 🚀")
+    with st.expander("Usage Guide"):
+        st.markdown("""
+        **Single Company Analysis:**
+        - 🔍 Enter company ticker symbol
+        - 📊 View comprehensive ESG breakdown
+        - 📈 Analyze risk components
+        - ⚠️ Track controversy levels
+        
+        **Company Comparison:**
+        - 🔄 Select two companies
+        - 📊 Compare ESG metrics
+        - 👥 View side-by-side analysis
+        - 📈 Identify key differences
+        
+        **Portfolio Assessment:**
+        - 📂 Upload CSV with ticker codes
+        - ⚡ Process multiple companies
+        - 📊 View aggregated results
+        - 💾 Export analysis data
+        """)
+
+    # Best Practices
+    st.markdown("### Analysis Best Practices 💡")
+    with st.expander("Tips for Better Analysis"):
+        st.markdown("""
+        **Effective Analysis:**
+        - 🎯 Compare within industry groups
+        - ⚠️ Consider controversy levels
+        - 📈 Monitor trends over time
+        - 🔄 Check data recency
+        
+        **Risk Assessment:**
+        - 📊 Review all ESG components
+        - ⚖️ Evaluate controversy impact
+        - 🌍 Consider industry context
+        - 📈 Track significant changes
+        """)
+
+    # Footer with disclaimer
+    st.markdown("""
+    ---
+    *ESG data sourced from Yahoo Finance. Scores and assessments should be considered alongside fundamental analysis.* 📚
+    """)
+
 if menu == "View ESG Score":
     ticker = st.text_input("Enter a stock ticker (e.g., KO for Coca-Cola)")
     if st.button("Get ESG Score"):
