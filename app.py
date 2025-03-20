@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
 # Page config
-st.set_page_config(page_title="ESG Analytics Dashboard", page_icon="🌱", layout="wide")
+st.set_page_config(page_title="ESGeniusIQ", page_icon="🌱", layout="wide")
 st.image("logo.png", width=100)
 
 
@@ -54,7 +54,7 @@ def get_esg_data_for_file(uploaded_file):
         st.warning("Please upload a valid file.")
         return None
 
-st.title("ESG Analytics Dashboard")
+st.title("ESGeniusIQ - ESG Analytics Dashboard")
 st.subheader("Strategic ESG Analysis & Sustainability Metrics")
 
 # Main navigation
