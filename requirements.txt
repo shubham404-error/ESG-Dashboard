@@ -1,4 +1,4 @@
-yfinance
+yesg
 pandas
 numpy
 streamlit
