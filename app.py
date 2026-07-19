@@ -1,5 +1,5 @@
 import streamlit as st
-import yfinance as yf
+import yesg
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -11,27 +11,37 @@ st.image("logo.png", width=100)
 
 REQUIRED_ESG_COLS = ['totalEsg', 'environmentScore', 'socialScore', 'governanceScore', 'highestControversy']
 
-def get_esg_data(ticker):
+# yesg's get_esg_full() column names -> the names the rest of this app expects
+_ESG_COLUMN_MAP = {
+    'Ticker': 'company_ticker',
+    'Total-Score': 'totalEsg',
+    'E-Score': 'environmentScore',
+    'S-Score': 'socialScore',
+    'G-Score': 'governanceScore',
+    'Highest Controversy': 'highestControversy',
+}
+
+
+def _fetch_esg(ticker):
+    """Fetch and normalize ESG data for one ticker. Returns None on any failure, silently."""
     try:
-        stock = yf.Ticker(ticker)
-        esg_data = stock.sustainability
-        if esg_data is not None and not esg_data.empty:
-            esg_data = esg_data.transpose()
-            missing = [c for c in REQUIRED_ESG_COLS if c not in esg_data.columns]
-            if missing:
-                st.warning(f"Yahoo Finance doesn't provide full ESG data for {ticker} (missing: {', '.join(missing)}). Try a different ticker.")
-                return None
-            esg_data.insert(0, 'company_ticker', ticker)  # Move ticker to the first column
-            if 'maxAge' in esg_data.columns:
-                max_age = esg_data.pop('maxAge')
-                esg_data['maxAge'] = max_age  # Move maxAge to the last column
-            return esg_data
-        else:
-            st.warning(f"No ESG data found for {ticker}.")
+        esg_data = yesg.get_esg_full(ticker)
+        if esg_data is None or esg_data.empty:
             return None
-    except Exception as e:
-        st.error(f"Error retrieving data for {ticker}: {e}")
+        esg_data = esg_data.rename(columns=_ESG_COLUMN_MAP)
+        if not all(c in esg_data.columns for c in REQUIRED_ESG_COLS):
+            return None
+        return esg_data
+    except Exception:
         return None
+
+
+def get_esg_data(ticker):
+    esg_data = _fetch_esg(ticker)
+    if esg_data is None:
+        st.warning(f"No ESG data found for {ticker}. It may not be covered by Sustainalytics/Yahoo's ESG dataset.")
+        return None
+    return esg_data
 
 def get_esg_data_for_file(uploaded_file):
     if uploaded_file is not None:
@@ -40,16 +50,8 @@ def get_esg_data_for_file(uploaded_file):
             tickers = tickers_df['ticker_code'].head(100)
             esg_data_list = []
             for ticker in tickers:
-                stock = yf.Ticker(ticker)
-                sustainability = stock.sustainability
-                if sustainability is not None and not sustainability.empty:
-                    temp = sustainability.transpose()
-                    if not all(c in temp.columns for c in REQUIRED_ESG_COLS):
-                        continue  # skip tickers with incomplete ESG data instead of crashing
-                    temp.insert(0, 'company_ticker', ticker)
-                    if 'maxAge' in temp.columns:
-                        max_age = temp.pop('maxAge')
-                        temp['maxAge'] = max_age  # Move maxAge to the last column
+                temp = _fetch_esg(ticker)  # skip tickers with no/incomplete ESG data instead of crashing
+                if temp is not None:
                     esg_data_list.append(temp)
             if esg_data_list:
                 return pd.concat(esg_data_list, ignore_index=True)
