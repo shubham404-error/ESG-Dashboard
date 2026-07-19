@@ -9,12 +9,18 @@ st.set_page_config(page_title="ESGeniusIQ", page_icon="🌱", layout="wide")
 st.image("logo.png", width=100)
 
 
+REQUIRED_ESG_COLS = ['totalEsg', 'environmentScore', 'socialScore', 'governanceScore', 'highestControversy']
+
 def get_esg_data(ticker):
     try:
         stock = yf.Ticker(ticker)
         esg_data = stock.sustainability
-        if esg_data is not None:
+        if esg_data is not None and not esg_data.empty:
             esg_data = esg_data.transpose()
+            missing = [c for c in REQUIRED_ESG_COLS if c not in esg_data.columns]
+            if missing:
+                st.warning(f"Yahoo Finance doesn't provide full ESG data for {ticker} (missing: {', '.join(missing)}). Try a different ticker.")
+                return None
             esg_data.insert(0, 'company_ticker', ticker)  # Move ticker to the first column
             if 'maxAge' in esg_data.columns:
                 max_age = esg_data.pop('maxAge')
@@ -35,8 +41,11 @@ def get_esg_data_for_file(uploaded_file):
             esg_data_list = []
             for ticker in tickers:
                 stock = yf.Ticker(ticker)
-                if stock.sustainability is not None:
-                    temp = stock.sustainability.transpose()
+                sustainability = stock.sustainability
+                if sustainability is not None and not sustainability.empty:
+                    temp = sustainability.transpose()
+                    if not all(c in temp.columns for c in REQUIRED_ESG_COLS):
+                        continue  # skip tickers with incomplete ESG data instead of crashing
                     temp.insert(0, 'company_ticker', ticker)
                     if 'maxAge' in temp.columns:
                         max_age = temp.pop('maxAge')
